@@ -8,6 +8,8 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private Transform _player;
     [SerializeField] private float _timeBetweenWaves = 5f;
     [SerializeField] private int _baseEnemiesPerWave = 5;
+    [SerializeField] private LayerMask _obstacleLayers; // Слои препятствий
+    [SerializeField] private LayerMask _spawnSurfaceLayer; // Слой, на котором можно спавнить врагов
 
     [Header("Progress")]
     [SerializeField] private float _enemyCountMultiplier = 1.2f;
@@ -18,18 +20,17 @@ public class WaveManager : MonoBehaviour
     private int _currentWave = 0;
     private int _enemiesRemaining;
     private bool _isWaveActive;
+    private Coroutine _waveCycleCoroutine;
 
     private void Start()
     {
-        StartCoroutine(WaveCycle());
+        _waveCycleCoroutine = StartCoroutine(WaveCycle());
     }
 
     private IEnumerator WaveCycle()
     {
         while (true)
         {
-            yield return new WaitUntil(() => !_isWaveActive || _enemiesRemaining <= 0);
-
             if (_currentWave > 0)
             {
                 Debug.Log($"Волна {_currentWave} завершена! Подготовка к следующей...");
@@ -37,6 +38,7 @@ public class WaveManager : MonoBehaviour
             }
 
             StartNewWave();
+            yield return new WaitForSeconds(_timeBetweenWaves);
         }
     }
 
@@ -62,7 +64,11 @@ public class WaveManager : MonoBehaviour
     private void SpawnEnemy()
     {
         Vector3 spawnPos = FindValidSpawnPosition();
-        if (spawnPos == Vector3.zero) return;
+        if (spawnPos == Vector3.zero)
+        {
+            Debug.LogWarning("Не удалось найти валидную позицию для спавна врага!");
+            return;
+        }
 
         bool isRanged = Random.value > 0.7f;
         GameObject enemy = Instantiate(
@@ -121,11 +127,25 @@ public class WaveManager : MonoBehaviour
             Vector3 randomPos = _player.position + new Vector3(Random.Range(-20f, 20f), 0, Random.Range(-20f, 20f));
 
             float distance = Vector3.Distance(randomPos, _player.position);
-            if (distance > 15f && distance < 25f && !Physics.CheckSphere(randomPos, 1f, LayerMask.GetMask("Obstacle")))
+            if (distance > 15f && distance < 25f)
             {
-                return randomPos;
+                // Проверка на препятствия
+                if (!Physics.CheckSphere(randomPos, 1f, _obstacleLayers))
+                {
+                    // Проверка, что точка находится на нужном слое
+                    RaycastHit hit;
+                    if (Physics.Raycast(randomPos + Vector3.up * 10f, Vector3.down, out hit, 20f, _spawnSurfaceLayer))
+                    {
+                        // Дополнительная проверка, что под точкой нет препятствий
+                        if (!Physics.Raycast(hit.point + Vector3.up * 0.5f, Vector3.down, 1f, _obstacleLayers))
+                        {
+                            return hit.point;
+                        }
+                    }
+                }
             }
         }
+        Debug.LogWarning("Не удалось найти валидную позицию после 30 попыток");
         return Vector3.zero;
     }
 }

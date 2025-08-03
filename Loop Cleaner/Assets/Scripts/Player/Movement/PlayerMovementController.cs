@@ -34,6 +34,7 @@ public class PlayerMovementController : MonoBehaviour, IMovementController
     private IStaminaSystem _staminaSystem;
     private float _originalHeight;
     private bool _controlsEnabled = true;
+    private PlayerDeathRespawnSystem _deathRespawnSystem;
 
     public Vector3 Velocity => _characterController.velocity;
     public bool IsGrounded => _characterController.isGrounded;
@@ -60,6 +61,11 @@ public class PlayerMovementController : MonoBehaviour, IMovementController
         if (_cameraController == null)
             _cameraController = GetComponent<PlayerCameraController>();
 
+        // Инициализация системы смерти и респавна
+        _deathRespawnSystem = GetComponent<PlayerDeathRespawnSystem>();
+        if (_deathRespawnSystem == null)
+            _deathRespawnSystem = gameObject.AddComponent<PlayerDeathRespawnSystem>();
+
         _healthSystem = new HealthSystem(
             maxHealth: _maxHealth,
             regenDelay: _healthRegenDelay,
@@ -73,6 +79,10 @@ public class PlayerMovementController : MonoBehaviour, IMovementController
             regenRate: _staminaRegenRate,
             staminaUI: _staminaUIController
         );
+
+        // Связываем системы
+        ((HealthSystem)_healthSystem).SetDeathHandler(_deathRespawnSystem);
+
 
         _stateMachine = new MovementStateMachine();
         _stateMachine.AddState(new WalkingState(this, _staminaSystem));
@@ -90,6 +100,12 @@ public class PlayerMovementController : MonoBehaviour, IMovementController
         _stateMachine.Update();
         _healthSystem.Update(Time.deltaTime);
         _staminaSystem.Update(Time.deltaTime);
+    }
+
+    private void OnRespawn()
+    {
+        ((HealthSystem)_healthSystem).ResetHealth();
+        ChangeState<WalkingState>();
     }
 
     public void SetControlEnabled(bool enabled)

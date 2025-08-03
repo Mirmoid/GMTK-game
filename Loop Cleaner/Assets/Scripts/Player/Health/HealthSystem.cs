@@ -6,20 +6,25 @@ public class HealthSystem : IHealthSystem
     public float MaxHealth { get; }
     public bool IsAlive => CurrentHealth > 0;
 
-    private float _healthRegenDelay;
-    private float _healthRegenRate;
+    private float _regenDelay;
+    private float _regenRate;
     private float _timeSinceLastDamage;
     private IHealthUI _healthUI;
+    private PlayerDeathRespawnSystem _deathHandler;
 
     public HealthSystem(float maxHealth, float regenDelay, float regenRate, IHealthUI healthUI = null)
     {
         MaxHealth = maxHealth;
         CurrentHealth = maxHealth;
-        _healthRegenDelay = regenDelay;
-        _healthRegenRate = regenRate;
+        _regenDelay = regenDelay;  // Исправлено: используем переданные параметры
+        _regenRate = regenRate;    // а не дублирующие поля
         _healthUI = healthUI;
-
         UpdateUI();
+    }
+
+    public void SetDeathHandler(PlayerDeathRespawnSystem deathHandler)
+    {
+        _deathHandler = deathHandler;
     }
 
     public void TakeDamage(float amount)
@@ -28,6 +33,12 @@ public class HealthSystem : IHealthSystem
 
         CurrentHealth = Mathf.Max(0, CurrentHealth - amount);
         _timeSinceLastDamage = 0f;
+
+        if (CurrentHealth <= 0)
+        {
+            _deathHandler?.HandleDeath();
+        }
+
         UpdateUI();
     }
 
@@ -37,15 +48,23 @@ public class HealthSystem : IHealthSystem
         UpdateUI();
     }
 
+    public void ResetHealth()
+    {
+        CurrentHealth = MaxHealth;
+        _timeSinceLastDamage = 0f;
+        UpdateUI();
+    }
+
     public void Update(float deltaTime)
     {
-        if (!IsAlive || CurrentHealth >= MaxHealth) return;
+        if (CurrentHealth >= MaxHealth) return;
 
         _timeSinceLastDamage += deltaTime;
 
-        if (_timeSinceLastDamage >= _healthRegenDelay)
+        if (_timeSinceLastDamage >= _regenDelay)
         {
-            Heal(_healthRegenRate * deltaTime);
+            CurrentHealth = Mathf.Min(CurrentHealth + _regenRate * deltaTime, MaxHealth);
+            UpdateUI();
         }
     }
 
