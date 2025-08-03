@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class DashingState : BaseMovementState
 {
-    private const float DashSpeed = 10f;
-    private const float DashDuration = 0.3f;
+    private const float DashSpeed = 20f;
+    private const float DashDuration = 0.4f;
 
     private float _dashTime;
     private Vector3 _dashDirection;

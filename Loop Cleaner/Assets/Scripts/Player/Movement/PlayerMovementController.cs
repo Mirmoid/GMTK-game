@@ -3,9 +3,15 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovementController : MonoBehaviour, IMovementController
 {
+    public static PlayerMovementController Instance { get; private set; }
+
     [Header("References")]
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private PlayerCameraController _cameraController;
+
+    [Header("Movement Settings")]
+    public float moveSpeed = 5f;
+    public float rotationSpeed = 10f;
 
     [Header("Health Settings")]
     [SerializeField] private float _maxHealth = 100f;
@@ -27,6 +33,7 @@ public class PlayerMovementController : MonoBehaviour, IMovementController
     private IHealthSystem _healthSystem;
     private IStaminaSystem _staminaSystem;
     private float _originalHeight;
+    private bool _controlsEnabled = true;
 
     public Vector3 Velocity => _characterController.velocity;
     public bool IsGrounded => _characterController.isGrounded;
@@ -34,9 +41,19 @@ public class PlayerMovementController : MonoBehaviour, IMovementController
     public Vector3 GetCenter() => _characterController.center;
 
     public float GetHeight() => _characterController.height;
+    public Rigidbody GetRigidbody() => GetComponent<Rigidbody>();
 
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         _characterController = GetComponent<CharacterController>();
         _originalHeight = _characterController.height;
 
@@ -68,10 +85,16 @@ public class PlayerMovementController : MonoBehaviour, IMovementController
 
     private void Update()
     {
+        if (!_controlsEnabled) return;
         HandleCameraRotation();
         _stateMachine.Update();
         _healthSystem.Update(Time.deltaTime);
         _staminaSystem.Update(Time.deltaTime);
+    }
+
+    public void SetControlEnabled(bool enabled)
+    {
+        _controlsEnabled = enabled;
     }
 
     public void TakeDamage(float damage)

@@ -18,7 +18,7 @@ public class WalkingState : BaseMovementState
             Controller.ChangeState<JumpingState>();
         }
 
-        if (Input.GetKeyDown(DashKey) && StaminaSystem.CanUseStamina(10f))
+        if (Input.GetKeyDown(DashKey))
         {
             Controller.ChangeState<DashingState>();
         }

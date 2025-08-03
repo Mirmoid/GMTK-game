@@ -929,8 +929,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.03, y: 0.05, z: 0.1}
-  m_Center: {x: 0.0018112184, y: -0.0041668606, z: 0.05877838}
+  m_Size: {x: 0.028426174, y: 0.05, z: 0.1}
+  m_Center: {x: 0.002598075, y: -0.004166862, z: 0.05877839}
 --- !u!1 &4093729547975276775
 GameObject:
   m_ObjectHideFlags: 0
@@ -1579,9 +1579,11 @@ GameObject:
   m_Component:
   - component: {fileID: 6854236405411679127}
   - component: {fileID: 2670957932637859663}
-  - component: {fileID: 4808873073309341397}
   - component: {fileID: 2973513702032137762}
-  - component: {fileID: 8584691449447525275}
+  - component: {fileID: 6259030657027202821}
+  - component: {fileID: 1012470621682125848}
+  - component: {fileID: 7784724825595485715}
+  - component: {fileID: 5524132315926641174}
   m_Layer: 0
   m_Name: Melee Monster
   m_TagString: Untagged
@@ -1619,23 +1621,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55141762c9491334e80ca9b3e91638d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0
-  damage: 0
+  moveSpeed: 4
+  damage: 10
   attackRange: 2
   attackCooldown: 1
---- !u!114 &4808873073309341397
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7244992704323732425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e88a3d20c13682f47953632e8a415cf5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _maxHealth: 100
+  stoppingDistance: 1.5
+  rotationSpeed: 5
+  walkAnimationParam: isWalking
+  attackAnimationParam: attack
+  idleAnimationParam: isIdle
 --- !u!114 &2973513702032137762
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1649,7 +1643,64 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _expValue: 10
---- !u!143 &8584691449447525275
+--- !u!195 &6259030657027202821
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7244992704323732425}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.44
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2.48
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!95 &1012470621682125848
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7244992704323732425}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 48911ff622f5d9d479b711c1411e6467, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7784724825595485715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7244992704323732425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e88a3d20c13682f47953632e8a415cf5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxHealth: 100
+--- !u!143 &5524132315926641174
 CharacterController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1667,13 +1718,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 3
-  m_Radius: 0.5
+  m_Height: 4
+  m_Radius: 0.88
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: -0.11, y: 1, z: -0.51}
+  m_Center: {x: 0, y: 0.96, z: 0}
 --- !u!1 &7288447060084470515
 GameObject:
   m_ObjectHideFlags: 0

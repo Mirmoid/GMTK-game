@@ -96,7 +96,6 @@ public class WaveManager : MonoBehaviour
             if (rangedAI != null)
             {
                 rangedAI.damage = damage;
-                rangedAI.moveSpeed = speed;
             }
         }
         else

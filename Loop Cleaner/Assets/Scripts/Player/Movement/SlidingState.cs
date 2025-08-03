@@ -3,7 +3,7 @@ using UnityEngine;
 public class SlidingState : BaseMovementState
 {
     private const float SlideDuration = 1f;
-    private const float SlideSpeed = 7f;
+    private const float SlideSpeed = 12f;
     private const float CameraHeightAdjustment = 0.5f;
 
     private float _slideTime;
@@ -17,11 +17,6 @@ public class SlidingState : BaseMovementState
     public override void Enter()
     {
         _originalCameraLocalPos = CameraController.CameraTransform.localPosition;
-        if (!StaminaSystem.TryUseStamina(MovementConstants.StaminaCostSlide))
-        {
-            Controller.ChangeState<WalkingState>();
-            return;
-        }
 
         _slideTime = 0f;
         _isSliding = true;

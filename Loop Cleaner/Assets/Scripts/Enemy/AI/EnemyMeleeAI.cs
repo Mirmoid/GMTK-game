@@ -1,45 +1,94 @@
 using UnityEngine;
+using UnityEngine.AI;
+using System.Collections;
 
+[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(Animator))]
 public class EnemyMeleeAI : MonoBehaviour
 {
     [Header("Settings")]
-    public float moveSpeed;
-    public float damage;
+    public float moveSpeed = 3.5f;
+    public float damage = 10f;
     public float attackRange = 2f;
     public float attackCooldown = 1f;
+    public float stoppingDistance = 1.5f;
+    public float rotationSpeed = 5f;
+
+    [Header("Animations")]
+    public string walkAnimationParam = "isWalking";
+    public string attackAnimationParam = "attack";
+    public string idleAnimationParam = "isIdle";
 
     private Transform _player;
     private float _lastAttackTime;
     private PlayerMovementController _playerHealth;
+    private NavMeshAgent _agent;
+    private Animator _animator;
+    private bool _isAttacking;
 
     private void Start()
     {
         _player = GameObject.FindGameObjectWithTag("Player").transform;
         _playerHealth = _player.GetComponent<PlayerMovementController>();
+        _agent = GetComponent<NavMeshAgent>();
+        _animator = GetComponent<Animator>();
+
+        _agent.speed = moveSpeed;
+        _agent.stoppingDistance = stoppingDistance;
+        _agent.angularSpeed = rotationSpeed;
     }
 
     private void Update()
     {
-        if (_player == null) return;
+        if (_player == null || _isAttacking) return;
 
-        Vector3 direction = _player.position - transform.position;
-        direction.y = 0;
+        float distanceToPlayer = Vector3.Distance(transform.position, _player.position);
 
-        transform.rotation = Quaternion.LookRotation(direction);
+        // Управление анимациями
+        _animator.SetBool(walkAnimationParam, distanceToPlayer > attackRange && _agent.velocity.magnitude > 0.1f);
+        _animator.SetBool(attackAnimationParam, distanceToPlayer <= attackRange);
 
-        if (direction.magnitude > attackRange)
+        if (distanceToPlayer > attackRange)
         {
-            transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+            _agent.SetDestination(_player.position);
         }
         else if (Time.time > _lastAttackTime + attackCooldown)
         {
-            Attack();
+            StartCoroutine(AttackRoutine());
         }
+        Vector3 direction = _player.position - transform.position;
+        transform.rotation = Quaternion.LookRotation(direction);
     }
 
-    private void Attack()
+    private IEnumerator AttackRoutine()
     {
+        _isAttacking = true;
+        _agent.isStopped = true;
+
+        // Запуск анимации атаки
+        _animator.SetTrigger(attackAnimationParam);
+
+        // Ждем перед нанесением урона (синхронизация с анимацией)
+        yield return new WaitForSeconds(0.3f);
+
+        if (Vector3.Distance(transform.position, _player.position) <= attackRange)
+        {
+            _playerHealth.TakeDamage(damage);
+        }
+
         _lastAttackTime = Time.time;
-        _playerHealth.TakeDamage(damage);
+
+        // Ждем завершения анимации
+        yield return new WaitForSeconds(0.5f);
+
+        _agent.isStopped = false;
+        _isAttacking = false;
+    }
+
+    // Визуализация радиуса атаки в редакторе
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }

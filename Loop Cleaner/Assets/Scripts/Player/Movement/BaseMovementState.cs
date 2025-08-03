@@ -8,8 +8,8 @@ public abstract class BaseMovementState : IMovementState
     protected ICameraController CameraController { get; }
 
     protected KeyCode JumpKey => KeyCode.Space;
-    protected KeyCode DashKey => KeyCode.Q;
-    protected KeyCode SlideKey => KeyCode.F;
+    protected KeyCode DashKey => KeyCode.LeftShift;
+    protected KeyCode SlideKey => KeyCode.LeftControl;
 
     protected BaseMovementState(PlayerMovementController controller, IStaminaSystem staminaSystem)
     {
